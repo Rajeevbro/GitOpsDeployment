@@ -1,4 +1,4 @@
 apiVersion: v2
-name: helm-application
+name: helm-backend-application
 description: A helm chart to deploy the api
 version: 1.0.0
