@@ -6,7 +6,7 @@ metadata:
 spec:
   project: default
   source:
-    repoURL: https://github.com/Rajeevbro/Deployment.git
+    repoURL: https://github.com/Rajeevbro/GitOpsDeployment.git  
     targetRevision: main
     path: helm/api
     helm:
