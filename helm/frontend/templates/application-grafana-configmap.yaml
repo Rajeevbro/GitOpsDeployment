@@ -1,0 +1,138 @@
+{{- if .Values.serviceMonitor.enabled }}
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ .Values.deploymentName }}-dashboard
+  namespace: monitoring
+  labels:
+    grafana_dashboard: "1"
+data:
+  application-dashboard.json: |
+    {
+      "title": "{{ .Values.deploymentName }} Dashboard",
+      "uid": "spring-boot-dashboard",
+      "tags": ["spring-boot", "java"],
+      "editable": true,
+      "style": "dark",
+      "time": { "from": "now-6h", "to": "now" },
+      "timezone": "",
+      "schemaVersion": 38,
+
+      "templating": {
+        "list": [
+          {
+            "type": "query",
+            "name": "job",
+            "datasource": { "type": "prometheus", "uid": "${DS_PROMETHEUS}" },
+            "query": "label_values(application_started_time_seconds, job)",
+            "refresh": 1,
+            "includeAll": true,
+            "multi": false,
+            "current": { "selected": true, "text": "All", "value": "$__all" }
+          }
+        ]
+      },
+
+      "panels": [
+        {
+          "type": "stat",
+          "title": "Process Uptime",
+          "gridPos": { "h": 4, "w": 5, "x": 0, "y": 0 },
+          "id": 1,
+          "datasource": { "type": "prometheus", "uid": "${DS_PROMETHEUS}" },
+          "fieldConfig": {
+            "defaults": {
+              "unit": "s",
+              "color": { "mode": "palette-classic" }
+            }
+          },
+          "options": {
+            "reduceOptions": { "calcs": ["lastNotNull"] },
+            "textMode": "auto"
+          },
+          "targets": [
+            {
+              "expr": "time() - application_started_time_seconds{job=~\"$job\"}",
+              "refId": "A",
+              "legendFormat": "__auto"
+            }
+          ]
+        },
+
+        {
+          "type": "stat",
+          "title": "Total Requests",
+          "gridPos": { "h": 4, "w": 4, "x": 5, "y": 0 },
+          "id": 2,
+          "datasource": { "type": "prometheus", "uid": "${DS_PROMETHEUS}" },
+          "fieldConfig": {
+            "defaults": { "decimals": 0 }
+          },
+          "options": {
+            "reduceOptions": { "calcs": ["lastNotNull"] }
+          },
+          "targets": [
+            {
+              "expr": "sum(increase(http_server_requests_seconds_count{job=~\"$job\"}[$__range_s]))",
+              "refId": "A"
+            }
+          ]
+        },
+
+        {
+          "type": "stat",
+          "title": "Error Rate (5xx)",
+          "gridPos": { "h": 4, "w": 5, "x": 9, "y": 0 },
+          "id": 3,
+          "datasource": { "type": "prometheus", "uid": "${DS_PROMETHEUS}" },
+          "fieldConfig": {
+            "defaults": { "unit": "percentunit" }
+          },
+          "options": {
+            "reduceOptions": { "calcs": ["lastNotNull"] }
+          },
+          "targets": [
+            {
+              "expr": "sum(increase(http_server_requests_seconds_count{job=~\"$job\",status=~\"5..\"}[$__range_s])) / sum(increase(http_server_requests_seconds_count{job=~\"$job\"}[$__range_s]))",
+              "refId": "A"
+            }
+          ]
+        },
+
+        {
+          "type": "timeseries",
+          "title": "Request Rate",
+          "gridPos": { "h": 9, "w": 24, "x": 0, "y": 5 },
+          "id": 10,
+          "datasource": { "type": "prometheus", "uid": "${DS_PROMETHEUS}" },
+          "targets": [
+            {
+              "expr": "rate(http_server_requests_seconds_count{job=~\"$job\"}[5m])",
+              "legendFormat": {{ printf "{{method}} {{uri}} {{status}}" | quote }},
+              "refId": "A"
+            }
+          ],
+          "options": {
+            "legend": { "displayMode": "list", "placement": "bottom" }
+          }
+        },
+
+        {
+          "type": "timeseries",
+          "title": "Latency per Endpoint",
+          "gridPos": { "h": 9, "w": 24, "x": 0, "y": 14 },
+          "id": 11,
+          "datasource": { "type": "prometheus", "uid": "${DS_PROMETHEUS}" },
+          "targets": [
+            {
+              "expr": "rate(http_server_requests_seconds_sum{job=~\"$job\"}[5m]) / rate(http_server_requests_seconds_count{job=~\"$job\"}[5m])",
+              "legendFormat": {{ printf "{{method}} {{uri}}" | quote }},
+              "refId": "A"
+            }
+          ]
+        }
+      ],
+
+      "version": 1
+    }
+{{- end }}

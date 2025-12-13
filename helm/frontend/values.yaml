@@ -1,0 +1,81 @@
+# =========================================================
+# Frontend APPLICATION 
+# =========================================================
+
+deploymentName: demo-application-frontend
+namespace: app
+replicaCount: 1
+deployementType: RollingUpdate
+maximumUnavailable: 50%
+maximumSurge: 1
+
+
+
+image:
+  repository: rslim087/kubernetes-course-grade-submission-portal
+  tag: latest
+  pullPolicy: IfNotPresent
+
+service:
+  type: ClusterIP
+  port: 5001
+
+# =========================================================
+# ENVIRONMENT VARIABLES
+# These get injected into the Deployment
+# =========================================================
+
+environmentDetails:
+  GRADE_SERVICE_HOST: demo-application-api-service
+  # MONGODB_HOST: mongodb-service
+  # MONGODB_PORT: '27017'
+
+
+# =========================================================
+# SECRETS (Do NOT commit real passwords)
+# Helm template will read this for DB_PASSWORD
+# =========================================================
+secret:
+  # MONGODB_USER: admin   # override in values-prod.yaml
+  # MONGODB_PASSWORD: password123    # override in values-prod.yaml
+
+# =========================================================
+# RESOURCE REQUESTS / LIMITS (Production recommended)
+# =========================================================
+resources:
+  requests:
+    cpu: "150m"
+    memory: "250Mi"
+  limits:
+    memory: "1Gi"
+
+# =========================================================
+# LIVENESS / READINESS PROBES
+# (Helps Kubernetes restart broken apps)
+# =========================================================
+livenessProbe:
+  enabled: false
+  path: /healthz
+  port: 3000
+  initialDelaySeconds: 20
+  periodSeconds: 10
+
+readinessProbe:
+  enabled: false
+  path: /readyz
+  port: 3000
+  initialDelaySeconds: 20
+  periodSeconds: 10
+
+# =========================================================
+# HPA (Optional - Autoscale frontend)
+# =========================================================
+autoscaling:
+  enabled: true
+  minReplicas: 2
+  maxReplicas: 10
+  targetCPUUtilizationPercentage: 70
+
+serviceMonitor:
+  enabled: false
+  path: /metrics

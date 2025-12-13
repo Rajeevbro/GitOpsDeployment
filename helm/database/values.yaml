@@ -1,0 +1,45 @@
+# =========================================================
+# DATABASE CONFIGURATION
+# =========================================================
+
+databaseName: mongodb
+replicaCount: 1
+
+
+
+
+image:
+  repository: mongo
+  tag: "4.4"
+  pullPolicy: IfNotPresent
+
+service:
+  port: 27017
+
+# =========================================================
+# ENVIRONMENT VARIABLES
+# These get injected into the Deployment
+# =========================================================
+
+environmentDetails:
+  # GRADE_SERVICE_HOST: demo-application-api-service
+  # MONGODB_HOST: mongodb-service
+  # MONGODB_PORT: '27017'
+
+
+# =========================================================
+# SECRETS (Do NOT commit real passwords)
+# Helm template will read this for DB_PASSWORD
+# =========================================================
+secret:
+  MONGO_INITDB_ROOT_USERNAME: admin   ## assumes this is base64 encoded, and interprets as admin
+  MONGO_INITDB_ROOT_PASSWORD: password123 ## assumes this is base64 encoded, and interprets as password123
+
+
+
+
+# =========================================================
+# Resources
+# ========================================================
+resources:
+  storage: 1Gi

@@ -1,0 +1,15 @@
+
+
+
+{{- if .Values.environmentDetails}}
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ .Values.deploymentName}}-config
+
+type: Opaque
+data:
+  {{- range $key, $value := .Values.environmentDetails }}
+  {{ $key }}: {{ $value | quote }}
+  {{- end }}
+{{- end}}

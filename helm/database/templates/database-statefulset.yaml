@@ -1,0 +1,45 @@
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: {{ .Values.databaseName}}
+spec:
+  selector:
+    matchLabels:
+      app.kubernetes.io/instance: {{ .Values.databaseName}}
+  serviceName: {{ .Values.databaseName}}
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/name: {{ .Values.databaseName}}
+        app.kubernetes.io/component: database
+        app.kubernetes.io/instance: {{ .Values.databaseName}}
+    spec:
+      containers:
+      - name: {{ .Values.databaseName}}
+        image: {{ .Values.image.repository}}:{{ .Values.image.tag}}
+        imagePullPolicy: {{ .Values.image.pullPolicy}}
+        envFrom:
+        {{- if .Values.environmentDetails}}
+          - configMapRef:
+              name: {{ .Values.deploymentName }}-config
+        {{- end }}
+        
+        {{- if .Values.secret}}
+          - secretRef:
+              name: {{ .Values.databaseName}}-secret
+        {{- end}}
+        ports:
+        - containerPort: {{ .Values.service.port}}
+          
+        volumeMounts:
+        - name: {{ .Values.databaseName}}-persistent-storage
+          mountPath: /data/db
+  volumeClaimTemplates:
+  - metadata:
+      name: {{ .Values.databaseName}}-persistent-storage
+    spec:
+      accessModes: [ "ReadWriteOnce" ]
+      resources:
+        requests:
+          storage: {{ .Values.resources.storage}}

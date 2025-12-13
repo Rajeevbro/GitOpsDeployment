@@ -1,0 +1,66 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ .Values.deploymentName }}
+spec:
+  replicas: {{ .Values.replicaCount }}
+  strategy:
+    type: {{ .Values.deploymentType }}
+    rollingUpdate:
+      maxUnavailable: {{ .Values.maximumUnavailable }}
+      maxSurge: {{ .Values.maximumSurge }}
+
+
+  selector:
+    matchLabels:
+      app.kubernetes.io/instance: {{ .Values.deploymentName }}   # This will create a link between deployment and each pod being created
+  template:
+    metadata:
+     labels:
+        app.kubernetes.io/name: {{.Values.deploymentName}}
+        app.kubernetes.io/component: frontend
+        app.kubernetes.io/instance: {{ .Values.deploymentName }}
+
+
+    spec:
+      containers:
+      - name: {{ .Values.deploymentName }}
+        image: {{ .Values.image.repository }}:{{ .Values.image.tag }}
+        imagePullPolicy: {{ .Values.image.pullPolicy}}
+        envFrom:
+        {{- if .Values.environmentDetails}}
+          - configMapRef:
+              name: {{ .Values.deploymentName }}-config
+        {{- end }}
+
+        {{- if .Values.secret}}
+          - secretRef:
+              name: {{ .Values.deploymentName }}-secret
+        {{- end }}
+        
+
+        {{- if .Values.livenessProbe.enabled }}
+        livenessProbe:
+          httpGet:
+            path: {{ .Values.livenessProbe.path }}
+            port: {{ .Values.livenessProbe.port }}
+          initialDelaySeconds: {{ .Values.livenessProbe.initialDelaySeconds }}
+          periodSeconds: {{ .Values.livenessProbe.periodSeconds }}
+        {{- end }}
+
+        {{- if .Values.readinessProbe.enabled }}
+        readinessProbe:
+          httpGet:
+            path: {{ .Values.readinessProbe.path}}
+            port: {{ .Values.service.port }}
+          initialDelaySeconds: {{ .Values.readinessProbe.initialDelaySeconds }}
+          periodSeconds: {{ .Values.readinessProbe.periodSeconds }}
+        {{- end }}
+        resources:
+          requests:
+            memory: {{ .Values.resources.requests.memory }}
+            cpu: {{ .Values.resources.requests.cpu }}
+          limits:
+            memory: {{ .Values.resources.limits.memory }}
+        ports:
+          - containerPort: {{ .Values.service.port }}
