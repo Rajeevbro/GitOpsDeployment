@@ -18,7 +18,7 @@ spec:
     metadata:
      labels:
         app.kubernetes.io/name: {{.Values.deploymentName}}
-        app.kubernetes.io/component: backend
+        # app.kubernetes.io/component: backend
         app.kubernetes.io/instance: {{ .Values.deploymentName }}
 
 

@@ -3,7 +3,7 @@
 # =========================================================
 
 deploymentName: demo-application-api
-namespace: app
+namespace: gitops
 replicaCount: 1
 deployementType: RollingUpdate
 maximumUnavailable: 50%
@@ -12,13 +12,13 @@ maximumSurge: 1
 
 
 image:
-  repository: rslim087/kubernetes-course-grade-submission-api
-  tag: stateless-v3
+  repository: rchapagain/cicdapp
+  tag: "6100282"
   pullPolicy: IfNotPresent
 
 service:
   type: ClusterIP
-  port: 3000
+  port: 8085
 
 # =========================================================
 # ENVIRONMENT VARIABLES
@@ -26,8 +26,9 @@ service:
 # =========================================================
 
 environmentDetails:
-  MONGODB_HOST: mongodb-service
-  MONGODB_PORT: '27017'
+    GRADE_SERVICE_HOST: grade-submission-api
+  # MONGODB_HOST: mongodb-service
+  # MONGODB_PORT: '27017'
 
 
 # =========================================================
@@ -35,15 +36,15 @@ environmentDetails:
 # Helm template will read this for DB_PASSWORD
 # =========================================================
 secret:
-  MONGODB_USER: admin   # override in values-prod.yaml
-  MONGODB_PASSWORD: password123    # override in values-prod.yaml
+  # MONGODB_USER: admin   # override in values-prod.yaml
+  # MONGODB_PASSWORD: password123    # override in values-prod.yaml
 
 # =========================================================
 # RESOURCE REQUESTS / LIMITS (Production recommended)
 # =========================================================
 resources:
   requests:
-    cpu: "150m"
+    cpu: "200m"
     memory: "250Mi"
   limits:
     memory: "1Gi"
@@ -54,15 +55,15 @@ resources:
 # =========================================================
 livenessProbe:
   enabled: true
-  path: /healthz
-  port: 3000
+  path: /actuator/health/liveness
+  port: 8085
   initialDelaySeconds: 20
   periodSeconds: 10
 
 readinessProbe:
   enabled: true
-  path: /readyz
-  port: 3000
+  path: /actuator/health/readiness
+  port: 8085
   initialDelaySeconds: 20
   periodSeconds: 10
 
@@ -70,12 +71,12 @@ readinessProbe:
 # HPA (Optional - Autoscale backend)
 # =========================================================
 autoscaling:
-  enabled: true
+  enabled: false
   minReplicas: 2
   maxReplicas: 10
   targetCPUUtilizationPercentage: 70
 
 
 serviceMonitor:
-  enabled: false
-  path: /metrics
+  enabled: true
+  path: /actuator/prometheus

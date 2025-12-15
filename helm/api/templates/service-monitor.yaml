@@ -3,16 +3,20 @@
 apiVersion: monitoring.coreos.com/v1
 kind: ServiceMonitor
 metadata:
-  name: {{ .Values.deploymentName}}-monitor
-  namespace: monitoring
+  name: {{ .Values.deploymentName}}
+
   labels:
     release: prometheus # matches kube-prometheus-stack release label
 spec:
   selector:
     matchLabels:
-      app:  {{ .Values.deploymentName}}
+      app.kubernetes.io/name: {{ .Values.deploymentName }}        # Must match Service labels
+      app.kubernetes.io/instance: {{ .Values.deploymentName }} 
+  namespaceSelector:
+    any: true
   endpoints:
-  - port: web
+  - port: http
     path: {{ .Values.serviceMonitor.path}}
     interval: 15s
+    scrapeTimeout: 10s
 {{- end}}
