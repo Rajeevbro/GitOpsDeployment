@@ -11,7 +11,7 @@ maximumSurge: 1
 
 
 
-image:
+image: localhost:5055/cicdapp:e557dc6
   repository: rchapagain/cicdapp
   tag: "6100282"
   pullPolicy: IfNotPresent
