@@ -25,8 +25,8 @@ spec:
     spec:
       containers:
       - name: {{ .Values.deploymentName }}
-        image: {{ .Values.image.repository }}:{{ .Values.image.tag }}
-        imagePullPolicy: {{ .Values.image.pullPolicy}}
+        image: {{ .Values.image }}
+        imagePullPolicy: {{ .Values.pullPolicy }}
         envFrom:
         {{- if .Values.environmentDetails}}
           - configMapRef:

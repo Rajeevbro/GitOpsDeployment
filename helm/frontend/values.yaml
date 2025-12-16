@@ -11,10 +11,8 @@ maximumSurge: 1
 
 
 
-image:
-  repository: rslim087/kubernetes-course-grade-submission-portal
-  tag: latest
-  pullPolicy: IfNotPresent
+image: rslim087/kubernetes-course-grade-submission-portal:latest
+pullPolicy: IfNotPresent
 
 service:
   type: ClusterIP
