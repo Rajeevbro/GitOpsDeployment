@@ -6,7 +6,7 @@ metadata:
     app.kubernetes.io/instance: {{ .Values.deploymentName }}
     app.kubernetes.io/name: {{ .Values.deploymentName }}
 spec:
-  type: ClusterIP
+  type: NodePort
   selector:
     app.kubernetes.io/instance: {{ .Values.deploymentName }}
     app.kubernetes.io/name: {{ .Values.deploymentName }}  
@@ -14,4 +14,7 @@ spec:
   ports:
   - port: {{ .Values.service.port }}
     targetPort: {{ .Values.service.port }}
+    nodePort: {{ .Values.service.nodePort }}
     name: http
+
+
