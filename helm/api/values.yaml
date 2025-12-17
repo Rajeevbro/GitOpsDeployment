@@ -24,7 +24,7 @@ service:
 # =========================================================
 
 environmentDetails:
-    GRADE_SERVICE_HOST: grade-submission-api
+    # GRADE_SERVICE_HOST: grade-submission-api
   # MONGODB_HOST: mongodb-service
   # MONGODB_PORT: '27017'
 
