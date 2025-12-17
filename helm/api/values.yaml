@@ -11,7 +11,7 @@ maximumSurge: 1
 
 
 
-image: localhost:5055/cicdapp:8356ed5
+image: localhost:5055/cicdapp:ad5a692
 pullPolicy: IfNotPresent
 
 service:
