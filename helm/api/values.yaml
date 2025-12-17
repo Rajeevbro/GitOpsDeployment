@@ -17,7 +17,7 @@ pullPolicy: IfNotPresent
 service:
   type: ClusterIP
   port: 8085
-  nodeport: 30080
+  nodePort: 30080
 
 # =========================================================
 # ENVIRONMENT VARIABLES
